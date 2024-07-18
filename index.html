@@ -176,7 +176,25 @@
 
         function vibrateDevice() {
             if ('vibrate' in navigator) {
-                navigator.vibrate([500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200, 110, 170, 40, 500]);
+                navigator.vibrate([
+                // Main theme
+                500, 110, 500, 110, 500, 110,  // DUN dun DUN dun DUN dun
+                400, 110, 300, 110, 500, 110,  // duuun dun duuuun
+                500, 110, 500, 110, 500, 110,  // DUN dun DUN dun DUN dun
+                400, 110, 300, 110, 500, 110,  // duuun dun duuuun
+                
+                // Secondary theme
+                650, 110, 250, 110, 250, 110, 250, 110,  // DUUUuuun dun dun dun
+                300, 110, 250, 110, 250, 110, 800, 110,  // duuun dun dun DUUUUN
+                650, 110, 250, 110, 250, 110, 250, 110,  // DUUUuuun dun dun dun
+                300, 110, 250, 110, 250, 110, 800, 110,  // duuun dun dun DUUUUN
+                
+                // Repeat main theme
+                500, 110, 500, 110, 500, 110,  // DUN dun DUN dun DUN dun
+                400, 110, 300, 110, 500, 110,  // duuun dun duuuun
+                500, 110, 500, 110, 500, 110,  // DUN dun DUN dun DUN dun
+                400, 110, 300, 110, 500, 110   // duuun dun duuuun
+            ]);
             }
         }
 
