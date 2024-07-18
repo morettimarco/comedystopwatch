@@ -176,7 +176,7 @@
 
         function vibrateDevice() {
             if ('vibrate' in navigator) {
-                navigator.vibrate(5000);
+                navigator.vibrate([400, 300, 400, 300, 400, 300, 400]);
             }
         }
 
