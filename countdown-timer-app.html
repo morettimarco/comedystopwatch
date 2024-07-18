@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countdown Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            transition: background-color 0.5s;
+            color: #333;
+        }
+        .container {
+            text-align: center;
+            background-color: rgba(240, 240, 240, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #timerDisplay {
+            font-size: 48px;
+            margin: 20px 0;
+        }
+        #progressBar {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            margin: 0 auto;
+        }
+        #progressBar circle {
+            transition: stroke-dashoffset 1s linear;
+            stroke: #0066cc;
+            stroke-width: 10px;
+        }
+        #progressBar circle:nth-child(1) {
+            stroke: #e0e0e0;
+        }
+        input, button {
+            font-size: 16px;
+            padding: 5px 10px;
+            margin: 5px;
+        }
+        button {
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #004c99;
+        }
+        #message {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        @keyframes blink-animation {
+            0%, 100% { background-color: #FF4136; }
+            50% { background-color: #7FDBFF; }
+        }
+        .blink {
+            animation: blink-animation 1s steps(2, start) infinite;
+        }
+        #wakeLockStatus {
+            font-size: 14px;
+            margin-top: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <svg id="progressBar" viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="45" fill="none" />
+            <circle cx="50" cy="50" r="45" fill="none" />
+        </svg>
+        <div id="timerDisplay">00:00</div>
+        <div>
+            <input type="number" id="minutesInput" placeholder="Minutes" min="0">
+            <input type="number" id="secondsInput" placeholder="Seconds" min="0" max="59">
+        </div>
+        <div>
+            <button id="startBtn">Start</button>
+            <button id="pauseBtn">Pause</button>
+            <button id="resetBtn">Reset</button>
+        </div>
+        <div id="message"></div>
+        <div id="wakeLockStatus"></div>
+    </div>
+
+    <script>
+        const timerDisplay = document.getElementById('timerDisplay');
+        const progressBar = document.getElementById('progressBar').querySelector('circle:nth-child(2)');
+        const minutesInput = document.getElementById('minutesInput');
+        const secondsInput = document.getElementById('secondsInput');
+        const startBtn = document.getElementById('startBtn');
+        const pauseBtn = document.getElementById('pauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const message = document.getElementById('message');
+        const wakeLockStatus = document.getElementById('wakeLockStatus');
+
+        let countdown;
+        let totalTime;
+        let remainingTime;
+        let isRunning = false;
+        let wakeLock = null;
+
+        const circumference = 2 * Math.PI * 45;
+        progressBar.style.strokeDasharray = circumference;
+        progressBar.style.strokeDashoffset = circumference;
+
+        async function requestWakeLock() {
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLockStatus.textContent = 'Screen will stay awake';
+                wakeLock.addEventListener('release', () => {
+                    wakeLockStatus.textContent = 'Screen can sleep';
+                });
+            } catch (err) {
+                wakeLockStatus.textContent = `${err.name}, ${err.message}`;
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock) {
+                wakeLock.release();
+                wakeLock = null;
+            }
+        }
+
+        async function startTimer() {
+            if (!isRunning) {
+                const minutes = parseInt(minutesInput.value) || 0;
+                const seconds = parseInt(secondsInput.value) || 0;
+                totalTime = minutes * 60 + seconds;
+                remainingTime = totalTime;
+
+                if (totalTime > 0) {
+                    isRunning = true;
+                    updateTimer();
+                    countdown = setInterval(updateTimer, 1000);
+                    await requestWakeLock();
+                }
+            }
+        }
+
+        function updateTimer() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            const progress = (totalTime - remainingTime) / totalTime;
+            progressBar.style.strokeDashoffset = circumference * (1 - progress);
+
+            // Update progress bar color
+            const hue = 210 * (1 - progress);
+            progressBar.style.stroke = `hsl(${hue}, 80%, 50%)`;
+
+            if (remainingTime === 0) {
+                clearInterval(countdown);
+                isRunning = false;
+                message.textContent = "Time's up!";
+                document.body.classList.add('blink');
+                vibrateDevice();
+                releaseWakeLock();
+            } else {
+                remainingTime--;
+            }
+        }
+
+        function vibrateDevice() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(5000);
+            }
+        }
+
+        function pauseTimer() {
+            clearInterval(countdown);
+            isRunning = false;
+            releaseWakeLock();
+        }
+
+        function resetTimer() {
+            clearInterval(countdown);
+            isRunning = false;
+            remainingTime = totalTime;
+            updateTimer();
+            message.textContent = '';
+            document.body.classList.remove('blink');
+            document.body.style.backgroundColor = '';
+            progressBar.style.stroke = '#0066cc';
+            if ('vibrate' in navigator) {
+                navigator.vibrate(0);
+            }
+            releaseWakeLock();
+        }
+
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+
+        // Handle visibility change
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible' && isRunning) {
+                await requestWakeLock();
+            } else {
+                releaseWakeLock();
+            }
+        });
+
+        // Optional: Keep timer running when tab is not active
+        let lastTime = Date.now();
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && isRunning) {
+                const now = Date.now();
+                const deltaTime = Math.floor((now - lastTime) / 1000);
+                remainingTime = Math.max(0, remainingTime - deltaTime);
+                updateTimer();
+            }
+            lastTime = Date.now();
+        });
+    </script>
+</body>
+</html>
