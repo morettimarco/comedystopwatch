@@ -48,7 +48,7 @@
 
         // Register service worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js')
+            navigator.serviceWorker.register('./service-worker.js')
                 .then(registration => {
                     console.log('Service Worker registered with scope:', registration.scope);
                 })
@@ -65,7 +65,7 @@
 
                 if (totalTime > 0) {
                     isRunning = true;
-                    worker = new Worker('timer-worker.js');
+                    worker = new Worker('./timer-worker.js');
                     worker.postMessage({ command: 'start', totalTime });
                     worker.onmessage = updateTimerDisplay;
                     backgroundStatus.textContent = 'Timer running in background';
