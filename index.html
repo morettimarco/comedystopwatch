@@ -105,15 +105,49 @@
         const message = document.getElementById('message');
         const wakeLockStatus = document.getElementById('wakeLockStatus');
 
-        let countdown;
-        let totalTime;
-        let remainingTime;
-        let isRunning = false;
         let wakeLock = null;
+        let worker = null;
 
         const circumference = 2 * Math.PI * 45;
         progressBar.style.strokeDasharray = circumference;
         progressBar.style.strokeDashoffset = circumference;
+
+        // Web Worker code
+        const workerCode = `
+            let interval;
+            let remainingTime;
+
+            self.onmessage = function(e) {
+                if (e.data.action === 'start') {
+                    remainingTime = e.data.time;
+                    clearInterval(interval);
+                    interval = setInterval(() => {
+                        remainingTime--;
+                        self.postMessage({remainingTime: remainingTime});
+                        if (remainingTime <= 0) {
+                            clearInterval(interval);
+                        }
+                    }, 1000);
+                } else if (e.data.action === 'pause') {
+                    clearInterval(interval);
+                } else if (e.data.action === 'reset') {
+                    clearInterval(interval);
+                    remainingTime = e.data.time;
+                    self.postMessage({remainingTime: remainingTime});
+                }
+            };
+        `;
+
+        // Create a Blob containing the worker code
+        const blob = new Blob([workerCode], {type: 'application/javascript'});
+        worker = new Worker(URL.createObjectURL(blob));
+
+        worker.onmessage = function(e) {
+            updateDisplay(e.data.remainingTime);
+            if (e.data.remainingTime <= 0) {
+                timerComplete();
+            }
+        };
 
         async function requestWakeLock() {
             try {
@@ -135,62 +169,38 @@
         }
 
         async function startTimer() {
-            if (!isRunning) {
-                const minutes = parseInt(minutesInput.value) || 0;
-                const seconds = parseInt(secondsInput.value) || 0;
-                totalTime = minutes * 60 + seconds;
-                remainingTime = totalTime;
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            const totalTime = minutes * 60 + seconds;
 
-                if (totalTime > 0) {
-                    isRunning = true;
-                    updateTimer();
-                    countdown = setInterval(updateTimer, 1000);
-                    await requestWakeLock();
-                }
+            if (totalTime > 0) {
+                worker.postMessage({action: 'start', time: totalTime});
+                await requestWakeLock();
             }
         }
 
-        function updateTimer() {
+        function updateDisplay(remainingTime) {
             const minutes = Math.floor(remainingTime / 60);
             const seconds = remainingTime % 60;
             timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-            const progress = (totalTime - remainingTime) / totalTime;
+            const progress = 1 - (remainingTime / (parseInt(minutesInput.value) * 60 + parseInt(secondsInput.value)));
             progressBar.style.strokeDashoffset = circumference * (1 - progress);
 
-            // Update progress bar color
             const hue = 210 * (1 - progress);
             progressBar.style.stroke = `hsl(${hue}, 80%, 50%)`;
-
-            if (remainingTime === 0) {
-                clearInterval(countdown);
-                isRunning = false;
-                message.textContent = "Time's up!";
-                document.body.classList.add('blink');
-                vibrateDevice();
-                releaseWakeLock();
-            } else {
-                remainingTime--;
-            }
-        }
-
-        function vibrateDevice() {
-            if ('vibrate' in navigator) {
-                navigator.vibrate(5000);
-            }
         }
 
         function pauseTimer() {
-            clearInterval(countdown);
-            isRunning = false;
+            worker.postMessage({action: 'pause'});
             releaseWakeLock();
         }
 
         function resetTimer() {
-            clearInterval(countdown);
-            isRunning = false;
-            remainingTime = totalTime;
-            updateTimer();
+            const minutes = parseInt(minutesInput.value) || 0;
+            const seconds = parseInt(secondsInput.value) || 0;
+            const totalTime = minutes * 60 + seconds;
+            worker.postMessage({action: 'reset', time: totalTime});
             message.textContent = '';
             document.body.classList.remove('blink');
             document.body.style.backgroundColor = '';
@@ -201,29 +211,30 @@
             releaseWakeLock();
         }
 
+        function timerComplete() {
+            message.textContent = "Time's up!";
+            document.body.classList.add('blink');
+            vibrateDevice();
+            releaseWakeLock();
+        }
+
+        function vibrateDevice() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(5000);
+            }
+        }
+
         startBtn.addEventListener('click', startTimer);
         pauseBtn.addEventListener('click', pauseTimer);
         resetBtn.addEventListener('click', resetTimer);
 
         // Handle visibility change
         document.addEventListener('visibilitychange', async () => {
-            if (document.visibilityState === 'visible' && isRunning) {
+            if (document.visibilityState === 'visible') {
                 await requestWakeLock();
             } else {
                 releaseWakeLock();
             }
-        });
-
-        // Optional: Keep timer running when tab is not active
-        let lastTime = Date.now();
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden && isRunning) {
-                const now = Date.now();
-                const deltaTime = Math.floor((now - lastTime) / 1000);
-                remainingTime = Math.max(0, remainingTime - deltaTime);
-                updateTimer();
-            }
-            lastTime = Date.now();
         });
     </script>
 </body>
