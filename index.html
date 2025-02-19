@@ -26,25 +26,20 @@
         width: 90%;
         max-width: 400px;
       }
+      /* The new full round progress bar using conic-gradient */
+      #progressRound {
+        width: 250px;
+        height: 250px;
+        border-radius: 50%;
+        /* Initially no progress (filled with base color) */
+        background: conic-gradient(#0066cc 0deg, #e0e0e0 0deg 360deg);
+        margin: 0 auto;
+        transition: background 1s linear;
+      }
       #timerDisplay {
         font-size: 60px;
         margin: 20px 0;
         font-weight: 700;
-      }
-      #progressBar {
-        width: 100%;
-        max-width: 300px;
-        height: auto;
-        position: relative;
-        margin: 0 auto;
-      }
-      #progressBar circle {
-        transition: stroke-dashoffset 1s linear;
-        stroke: #0066cc;
-        stroke-width: 8px;
-      }
-      #progressBar circle:nth-child(1) {
-        stroke: #e0e0e0;
       }
       input,
       button {
@@ -90,10 +85,8 @@
   </head>
   <body>
     <div class="container">
-      <svg id="progressBar" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="45" fill="none" />
-        <circle cx="50" cy="50" r="45" fill="none" />
-      </svg>
+      <!-- The progress bar element -->
+      <div id="progressRound"></div>
       <div id="timerDisplay">00:00</div>
       <div>
         <input type="number" id="minutesInput" placeholder="Minutes" min="0" />
@@ -116,9 +109,7 @@
 
     <script>
       const timerDisplay = document.getElementById("timerDisplay");
-      const progressBar = document
-        .getElementById("progressBar")
-        .querySelector("circle:nth-child(2)");
+      const progressRound = document.getElementById("progressRound");
       const minutesInput = document.getElementById("minutesInput");
       const secondsInput = document.getElementById("secondsInput");
       const startBtn = document.getElementById("startBtn");
@@ -133,16 +124,12 @@
       let isRunning = false;
       let wakeLock = null;
 
-      const circumference = 2 * Math.PI * 45;
-      progressBar.style.strokeDasharray = circumference;
-      progressBar.style.strokeDashoffset = circumference;
-
       async function requestWakeLock() {
         try {
           wakeLock = await navigator.wakeLock.request("screen");
-          //wakeLockStatus.textContent = 'Screen will stay awake';
+          // Optional: update status text if desired.
           wakeLock.addEventListener("release", () => {
-            //wakeLockStatus.textContent = 'Screen can sleep';
+            // wakeLockStatus.textContent = 'Screen can sleep';
           });
         } catch (err) {
           wakeLockStatus.textContent = `${err.name}, ${err.message}`;
@@ -179,12 +166,12 @@
           .toString()
           .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
 
+        // Calculate progress (from 0 to 1) and convert to degrees (0° - 360°)
         const progress = (totalTime - remainingTime) / totalTime;
-        progressBar.style.strokeDashoffset = circumference * (1 - progress);
-
-        // Update progress bar color
+        const angle = progress * 360;
+        // Optionally change color as progress increases
         const hue = 210 * (1 - progress);
-        progressBar.style.stroke = `hsl(${hue}, 80%, 50%)`;
+        progressRound.style.background = `conic-gradient(hsl(${hue}, 80%, 50%) ${angle}deg, #e0e0e0 ${angle}deg 360deg)`;
 
         if (remainingTime === 0) {
           clearInterval(countdown);
@@ -220,8 +207,7 @@
         updateTimer();
         message.textContent = "";
         document.body.classList.remove("blink");
-        document.body.style.backgroundColor = "";
-        progressBar.style.stroke = "#0066cc";
+        progressRound.style.background = `conic-gradient(#0066cc 0deg, #e0e0e0 0deg 360deg)`;
         if ("vibrate" in navigator) {
           navigator.vibrate(1000);
         }
@@ -232,7 +218,7 @@
       pauseBtn.addEventListener("click", pauseTimer);
       resetBtn.addEventListener("click", resetTimer);
 
-      // Handle visibility change
+      // Handle visibility change for wake lock
       document.addEventListener("visibilitychange", async () => {
         if (document.visibilityState === "visible" && isRunning) {
           await requestWakeLock();
@@ -241,7 +227,7 @@
         }
       });
 
-      // Optional: Keep timer running when tab is not active
+      // Optional: adjust timer if the tab goes inactive
       let lastTime = Date.now();
       document.addEventListener("visibilitychange", () => {
         if (!document.hidden && isRunning) {
