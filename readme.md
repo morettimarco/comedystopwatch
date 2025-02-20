@@ -26,3 +26,27 @@ During numerous performances, I experienced the shortcomings of generic timers:
 
 - **Screen Wake Lock:**  
   Prevents the device from going to sleep during the countdown.
+
+## Installation Instructions
+
+### On Android
+
+1. **Open in Chrome:**  
+   Launch Chrome on your Android device and navigate to your hosted URL (e.g., `https://<your-username>.github.io/<repository-name>/`).
+
+2. **Add to Home Screen:**  
+   - Tap the three-dot menu icon in the top-right corner.
+   - Select **"Add to Home screen"**.
+   - Confirm the prompt.  
+     The app icon will appear on your home screen, allowing you to launch it like a native app.
+
+### On iOS
+
+1. **Open in Safari:**  
+   Open Safari on your iOS device and go to your hosted URL (e.g., `https://<your-username>.github.io/<repository-name>/`).
+
+2. **Add to Home Screen:**  
+   - Tap the **Share** button (the square with an arrow at the bottom).
+   - Scroll down and select **"Add to Home Screen"**.
+   - Optionally, rename the app and tap **"Add"**.  
+     The app will now be accessible from your home screen.
