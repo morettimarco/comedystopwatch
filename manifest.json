@@ -19,5 +19,9 @@
   ],
   "id": "standup-comedy-timer",
   "description": "Stand-up Comedy Timer is a specialized countdown timer built exclusively for stand-up comedians. Frustrated by generic timers that disrupt performances with loud alarms, allow screens to sleep, or are hard to read from afar, this app was designed to meet the unique needs of live comedy sets. It features:\n\nSilent, Non-Intrusive Alerts:\nUses visual cues and haptic feedback instead of disruptive sounds.\n\nPersistent Screen Activation:\nImplements wake-lock functionality to keep your device's screen active throughout your set.\n\nClear, At-a-Glance Display:\nA full-round, dynamic progress indicator makes it easy to see your remaining time from a distance.\n\nProgressive Web App Benefits:\nEnjoy an app-like experience with offline capabilities and easy installation on both Android and iOS.\n\nThis app ensures you can maintain the flow of your performance without the distractions or shortcomings of standard timers.",
-  "orientation": "portrait"
+  "orientation": "portrait",
+  "categories": [
+    "entertainment",
+    "utilities"
+  ]
 }
