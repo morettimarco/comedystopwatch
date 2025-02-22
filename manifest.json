@@ -23,5 +23,8 @@
   "categories": [
     "entertainment",
     "utilities"
-  ]
+  ],
+  "dir": "auto",
+  "scope": "./index.html",
+  "lang": "en"
 }
