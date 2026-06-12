@@ -316,8 +316,8 @@
       body.prompter .classic {
         display: none;
       }
-      /* When idle (not active) hide the running-only classic controls */
-      body:not(.active) .classic-controls {
+      /* Keep the idle/setup screen clean — only show the classic timer once running */
+      body:not(.active) .classic {
         display: none;
       }
       body.active.prompter .stage {
@@ -339,6 +339,24 @@
       }
       body.finished .stage {
         animation: blink-animation 1s steps(2, start) infinite;
+      }
+      .times-up {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
+        font-weight: 700;
+        letter-spacing: 1px;
+        font-size: clamp(28px, 9vw, 52px);
+        padding: 16px 30px;
+        border-radius: 14px;
+        white-space: nowrap;
+      }
+      body.finished .times-up {
+        display: block;
       }
 
       /* Landscape phones: tighten vertical chrome */
@@ -422,6 +440,7 @@
       <div class="viewport" id="viewport">
         <div class="content" id="prompterContent"></div>
         <div class="reading-guide"></div>
+        <div class="times-up">⏰ Time's up!</div>
       </div>
       <div class="bottombar">
         <button id="pauseBtn2" class="secondary">Pause</button>
