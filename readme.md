@@ -16,7 +16,20 @@ During numerous performances, I experienced the shortcomings of generic timers:
   Enjoy an app-like experience with offline capabilities and easy installation on your device.
   
 - **Dynamic Countdown Timer:**  
-  Set custom durations using minute and second inputs.
+  Set custom durations using minute and second inputs, or one-tap quick presets (3/5/7/10/15 min).
+
+- **Scrolling Teleprompter:**  
+  Paste your set or speech (one short line or word per row) and the lines auto-scroll vertically, synced to the timer so you reach the last line exactly when time runs out. The current line is highlighted on a reading guide.
+  - **Stay in sync at your own pace:** swipe the prompter up/down to nudge ahead or back if you drift; tap **Re-sync** to snap back to the timer.
+  - **Tap to pause:** tap anywhere on the prompter to pause/resume.
+  - **Readable from anywhere:** adjust text size with the A− / A+ buttons.
+  - Leave the prompt empty to use the classic full-round timer instead.
+
+- **Responsive Layout:**  
+  Works in portrait and landscape on phones, tablets, and laptops.
+
+- **Remembers Your Setup:**  
+  Your last duration, prompt text, and text size are saved locally for next time.
 
 - **Full-Round Visual Progress Indicator:**  
   A conic-gradient progress bar offers an at-a-glance understanding of the remaining time.

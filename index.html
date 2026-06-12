@@ -2,69 +2,329 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Countdown Timer</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Comedy / Speech Timer</title>
     <link
       href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap"
       rel="stylesheet"
     />
     <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#0b0b0b" />
     <style>
-      body {
-        font-family: "Orbitron", sans-serif;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
-        transition: background-color 0.5s;
-        color: #333;
-        background-color: #f0f0f0;
+      :root {
+        --accent: #0066cc;
+        --accent-light: #7fdbff;
+        --font-scale: 1;
       }
-      .container {
-        text-align: center;
-        padding: 20px;
-        width: 90%;
-        max-width: 400px;
-      }
-      /* The new full round progress bar using conic-gradient */
-      #progressRound {
-        width: 300px;
-        height: 300px;
-        border-radius: 50%;
-        /* Initially no progress (filled with base color) */
-        background: conic-gradient(#0066cc 0deg, #e0e0e0 0deg 360deg);
-        margin: 0 auto;
-        transition: background 1s linear;
-      }
-      #timerDisplay {
-        font-size: 60px;
-        margin: 20px 0;
-        font-weight: 700;
-      }
-      input,
-      button {
-        font-size: 18px;
-        padding: 10px;
-        margin: 5px;
-        width: calc(50% - 10px);
+      * {
         box-sizing: border-box;
       }
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        font-family: "Orbitron", sans-serif;
+        margin: 0;
+        color: #333;
+        background-color: #f0f0f0;
+        transition: background-color 0.5s;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .app {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding: 20px;
+        padding: max(20px, env(safe-area-inset-top))
+          max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom))
+          max(20px, env(safe-area-inset-left));
+      }
+
+      /* ---------- Setup / idle screen ---------- */
+      .setup {
+        width: 100%;
+        max-width: 460px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .app-title {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0;
+        color: #222;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+      .num-input {
+        flex: 1;
+        font-family: inherit;
+        font-size: 18px;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        text-align: center;
+        min-width: 0;
+      }
+      .quick-times {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .chip {
+        font-family: inherit;
+        font-size: 13px;
+        padding: 6px 12px;
+        border: 1px solid var(--accent);
+        background: #fff;
+        color: var(--accent);
+        border-radius: 999px;
+        cursor: pointer;
+      }
+      .chip:hover {
+        background: #eef5ff;
+      }
+      label.field-label {
+        font-size: 13px;
+        color: #555;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      textarea#promptInput {
+        width: 100%;
+        min-height: 130px;
+        resize: vertical;
+        font-family: inherit;
+        font-size: 16px;
+        line-height: 1.4;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+      .hint {
+        font-size: 12px;
+        color: #777;
+        text-align: center;
+        margin: 0;
+      }
+
       button {
-        background-color: #0066cc;
+        font-family: inherit;
+        background-color: var(--accent);
         color: white;
         border: none;
-        border-radius: 5px;
+        border-radius: 8px;
         cursor: pointer;
+        padding: 12px;
+        font-size: 16px;
       }
       button:hover {
         background-color: #004c99;
       }
+      button.secondary {
+        background: #e6e6e6;
+        color: #333;
+      }
+      button.secondary:hover {
+        background: #d5d5d5;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: default;
+      }
+      .start-btn {
+        font-size: 20px;
+        font-weight: 700;
+        padding: 16px;
+      }
+
+      /* ---------- Classic round-timer view ---------- */
+      .classic {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+      #progressRound {
+        width: min(300px, 72vmin);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: conic-gradient(var(--accent) 0deg, #e0e0e0 0deg 360deg);
+        transition: background 0.4s linear;
+      }
+      #timerDisplay {
+        font-size: clamp(44px, 13vmin, 64px);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+      .classic-controls {
+        display: flex;
+        gap: 10px;
+        width: min(320px, 80vw);
+      }
+      .classic-controls button {
+        flex: 1;
+      }
       #message {
         font-size: 24px;
-        margin-top: 20px;
         font-weight: bold;
+        min-height: 28px;
+        text-align: center;
       }
+      #wakeLockStatus {
+        font-size: 12px;
+        color: #888;
+        text-align: center;
+        min-height: 14px;
+      }
+
+      /* ---------- Teleprompter stage ---------- */
+      .stage {
+        display: none;
+        position: fixed;
+        inset: 0;
+        flex-direction: column;
+        background: #0b0b0b;
+        color: #fff;
+        z-index: 10;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+          env(safe-area-inset-bottom) env(safe-area-inset-left);
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        flex-shrink: 0;
+      }
+      .topbar .time {
+        font-size: clamp(20px, 6vw, 30px);
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        min-width: 4.5ch;
+      }
+      .linebar {
+        flex: 1;
+        height: 8px;
+        background: #2a2a2a;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .linebar > i {
+        display: block;
+        height: 100%;
+        width: 0%;
+        background: var(--accent-light);
+        transition: background 0.4s linear;
+      }
+      .viewport {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        touch-action: none;
+        cursor: grab;
+        min-height: 0;
+      }
+      .viewport:active {
+        cursor: grabbing;
+      }
+      .content {
+        will-change: transform;
+      }
+      .prompt-line {
+        font-size: calc(clamp(24px, 7vw, 40px) * var(--font-scale));
+        line-height: 1.35;
+        padding: 12px 20px;
+        text-align: center;
+        opacity: 0.3;
+        color: #fff;
+        transition: opacity 0.25s, transform 0.25s, color 0.25s;
+      }
+      .prompt-line.active {
+        opacity: 1;
+        transform: scale(1.05);
+        color: var(--accent-light);
+      }
+      .reading-guide {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 40%;
+        height: 0;
+        border-top: 1px dashed rgba(127, 219, 255, 0.35);
+        pointer-events: none;
+      }
+      .empty-prompt {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #555;
+        font-size: 18px;
+        padding: 20px;
+        text-align: center;
+      }
+      .bottombar {
+        display: flex;
+        gap: 8px;
+        padding: 12px 14px;
+        flex-shrink: 0;
+        align-items: stretch;
+      }
+      .bottombar button {
+        flex: 1;
+        font-size: 15px;
+        padding: 12px 6px;
+      }
+      .bottombar .icon-btn {
+        flex: 0 0 auto;
+        width: 48px;
+        background: #2a2a2a;
+        color: #fff;
+        font-size: 18px;
+      }
+      .bottombar .icon-btn:hover {
+        background: #3a3a3a;
+      }
+      #syncBtn {
+        display: none;
+      }
+      body.nudged #syncBtn {
+        display: block;
+      }
+
+      /* ---------- State-driven visibility ---------- */
+      body.active .setup {
+        display: none;
+      }
+      /* Classic view: shown unless we're in prompter mode */
+      body.prompter .classic {
+        display: none;
+      }
+      /* When idle (not active) hide the running-only classic controls */
+      body:not(.active) .classic-controls {
+        display: none;
+      }
+      body.active.prompter .stage {
+        display: flex;
+      }
+
+      /* Blink when time is up */
       @keyframes blink-animation {
         0%,
         100% {
@@ -74,69 +334,195 @@
           background-color: #7fdbff;
         }
       }
-      .blink {
+      body.blink {
         animation: blink-animation 1s steps(2, start) infinite;
       }
-      #wakeLockStatus {
-        font-size: 14px;
-        margin-top: 10px;
-        color: #666;
+      body.finished .stage {
+        animation: blink-animation 1s steps(2, start) infinite;
+      }
+
+      /* Landscape phones: tighten vertical chrome */
+      @media (orientation: landscape) and (max-height: 500px) {
+        .topbar {
+          padding: 6px 14px;
+        }
+        .bottombar {
+          padding: 8px 12px;
+        }
+        .reading-guide {
+          top: 42%;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <!-- The progress bar element -->
-      <div id="progressRound"></div>
-      <div id="timerDisplay">00:00</div>
-      <div>
-        <input type="number" id="minutesInput" placeholder="Minutes" min="0" />
-        <input
-          type="number"
-          id="secondsInput"
-          placeholder="Seconds"
-          min="0"
-          max="59"
-        />
+    <div class="app">
+      <!-- ===== Setup / idle ===== -->
+      <div class="setup" id="setup">
+        <h1 class="app-title">Comedy &amp; Speech Timer</h1>
+        <div class="row">
+          <input
+            type="number"
+            id="minutesInput"
+            class="num-input"
+            placeholder="Min"
+            min="0"
+            inputmode="numeric"
+          />
+          <input
+            type="number"
+            id="secondsInput"
+            class="num-input"
+            placeholder="Sec"
+            min="0"
+            max="59"
+            inputmode="numeric"
+          />
+        </div>
+        <div class="quick-times" id="quickTimes">
+          <button class="chip" data-min="3">3 min</button>
+          <button class="chip" data-min="5">5 min</button>
+          <button class="chip" data-min="7">7 min</button>
+          <button class="chip" data-min="10">10 min</button>
+          <button class="chip" data-min="15">15 min</button>
+        </div>
+        <label class="field-label" for="promptInput">
+          <span>Prompt lines (optional — one line each)</span>
+        </label>
+        <textarea
+          id="promptInput"
+          placeholder="Paste your set / speech here.&#10;One short line or word per row.&#10;&#10;Opening bit&#10;Callback to airport joke&#10;Closer"
+        ></textarea>
+        <p class="hint">
+          Add lines to turn on the scrolling teleprompter. Leave empty for the
+          classic timer.
+        </p>
+        <button id="startBtn" class="start-btn">Start</button>
       </div>
-      <div>
-        <button id="startBtn">Start</button>
-        <button id="pauseBtn">Pause</button>
-        <button id="resetBtn">Reset</button>
+
+      <!-- ===== Classic round-timer view ===== -->
+      <div class="classic" id="classic">
+        <div id="progressRound"></div>
+        <div id="timerDisplay">00:00</div>
+        <div class="classic-controls">
+          <button id="pauseBtn" class="secondary">Pause</button>
+          <button id="resetBtn" class="secondary">Reset</button>
+        </div>
+        <div id="message"></div>
+        <div id="wakeLockStatus"></div>
       </div>
-      <div id="message"></div>
-      <div id="wakeLockStatus"></div>
+    </div>
+
+    <!-- ===== Teleprompter stage ===== -->
+    <div class="stage" id="stage">
+      <div class="topbar">
+        <span class="time" id="prompterTime">00:00</span>
+        <span class="linebar"><i id="prompterBar"></i></span>
+      </div>
+      <div class="viewport" id="viewport">
+        <div class="content" id="prompterContent"></div>
+        <div class="reading-guide"></div>
+      </div>
+      <div class="bottombar">
+        <button id="pauseBtn2" class="secondary">Pause</button>
+        <button id="syncBtn" class="secondary">Re-sync</button>
+        <button id="fontDec" class="icon-btn" aria-label="Smaller text">A−</button>
+        <button id="fontInc" class="icon-btn" aria-label="Bigger text">A+</button>
+        <button id="resetBtn2">Done</button>
+      </div>
     </div>
 
     <script>
-      const timerDisplay = document.getElementById("timerDisplay");
-      const progressRound = document.getElementById("progressRound");
+      "use strict";
+
+      // ---- Elements ----
       const minutesInput = document.getElementById("minutesInput");
       const secondsInput = document.getElementById("secondsInput");
+      const promptInput = document.getElementById("promptInput");
       const startBtn = document.getElementById("startBtn");
       const pauseBtn = document.getElementById("pauseBtn");
       const resetBtn = document.getElementById("resetBtn");
+      const pauseBtn2 = document.getElementById("pauseBtn2");
+      const resetBtn2 = document.getElementById("resetBtn2");
+      const syncBtn = document.getElementById("syncBtn");
+      const fontDec = document.getElementById("fontDec");
+      const fontInc = document.getElementById("fontInc");
+
+      const timerDisplay = document.getElementById("timerDisplay");
+      const progressRound = document.getElementById("progressRound");
       const message = document.getElementById("message");
       const wakeLockStatus = document.getElementById("wakeLockStatus");
 
-      let countdown;
-      let totalTime;
-      let remainingTime;
+      const stage = document.getElementById("stage");
+      const viewport = document.getElementById("viewport");
+      const prompterContent = document.getElementById("prompterContent");
+      const prompterTime = document.getElementById("prompterTime");
+      const prompterBar = document.getElementById("prompterBar");
+
+      // ---- State ----
+      let totalMs = 0;
+      let accumulatedMs = 0; // elapsed time banked from previous run segments
+      let startedAt = 0; // performance.now() when current segment started
       let isRunning = false;
+      let promptMode = false;
+      let rafId = null;
       let wakeLock = null;
 
+      // Teleprompter geometry
+      let lineEls = [];
+      let lineCenters = [];
+      let maxScroll = 0;
+      let manualOffset = 0; // user nudge in px
+      let activeIndex = -1;
+      const READING_FRACTION = 0.4;
+
+      let fontScale = parseFloat(localStorage.getItem("cst_fontScale")) || 1;
+
+      // ---- Helpers ----
+      const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+
+      function fmt(ms) {
+        const total = Math.max(0, Math.ceil(ms / 1000));
+        const m = Math.floor(total / 60);
+        const s = total % 60;
+        return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+      }
+
+      function elapsedNow() {
+        return accumulatedMs + (isRunning ? performance.now() - startedAt : 0);
+      }
+
+      function applyFontScale() {
+        document.documentElement.style.setProperty("--font-scale", fontScale);
+        localStorage.setItem("cst_fontScale", String(fontScale));
+      }
+
+      // ---- Persistence ----
+      function loadSaved() {
+        const savedPrompt = localStorage.getItem("cst_prompt");
+        if (savedPrompt !== null) promptInput.value = savedPrompt;
+        const m = localStorage.getItem("cst_min");
+        const s = localStorage.getItem("cst_sec");
+        if (m) minutesInput.value = m;
+        if (s) secondsInput.value = s;
+        applyFontScale();
+      }
+      function saveInputs() {
+        localStorage.setItem("cst_prompt", promptInput.value);
+        localStorage.setItem("cst_min", minutesInput.value);
+        localStorage.setItem("cst_sec", secondsInput.value);
+      }
+
+      // ---- Wake lock ----
       async function requestWakeLock() {
+        if (!("wakeLock" in navigator)) return;
         try {
           wakeLock = await navigator.wakeLock.request("screen");
-          // Optional: update status text if desired.
-          wakeLock.addEventListener("release", () => {
-            // wakeLockStatus.textContent = 'Screen can sleep';
-          });
+          wakeLock.addEventListener("release", () => {});
         } catch (err) {
           wakeLockStatus.textContent = `${err.name}, ${err.message}`;
         }
       }
-
       function releaseWakeLock() {
         if (wakeLock) {
           wakeLock.release();
@@ -144,114 +530,323 @@
         }
       }
 
-      async function startTimer() {
-        if (!isRunning) {
-          const minutes = parseInt(minutesInput.value) || 0;
-          const seconds = parseInt(secondsInput.value) || 0;
-          totalTime = minutes * 60 + seconds;
-          remainingTime = totalTime;
+      // ---- Teleprompter ----
+      function buildPrompter() {
+        const lines = promptInput.value
+          .split("\n")
+          .map((l) => l.trim())
+          .filter((l) => l.length > 0);
 
-          if (totalTime > 0) {
-            isRunning = true;
-            updateTimer();
-            countdown = setInterval(updateTimer, 1000);
-            await requestWakeLock();
+        prompterContent.innerHTML = "";
+        lineEls = lines.map((text) => {
+          const d = document.createElement("div");
+          d.className = "prompt-line";
+          d.textContent = text;
+          prompterContent.appendChild(d);
+          return d;
+        });
+        manualOffset = 0;
+        activeIndex = -1;
+        document.body.classList.remove("nudged");
+        return lines.length > 0;
+      }
+
+      function layoutPrompter() {
+        if (!promptMode || lineEls.length === 0) return;
+        const vh = viewport.clientHeight;
+        const readingY = vh * READING_FRACTION;
+        // Lead-in / lead-out so first and last lines can reach the reading line.
+        prompterContent.style.paddingTop = readingY + "px";
+        prompterContent.style.paddingBottom = vh - readingY + "px";
+        // Cache line centers (relative to content top).
+        lineCenters = lineEls.map(
+          (el) => el.offsetTop + el.offsetHeight / 2
+        );
+        maxScroll = Math.max(0, prompterContent.scrollHeight - vh);
+      }
+
+      function renderPrompter(progress) {
+        if (!promptMode || lineEls.length === 0) return;
+        const vh = viewport.clientHeight;
+        const readingY = vh * READING_FRACTION;
+        const pos = clamp(progress * maxScroll + manualOffset, 0, maxScroll);
+        prompterContent.style.transform = `translateY(${-pos}px)`;
+
+        // Highlight the line nearest the reading guide.
+        const focus = pos + readingY;
+        let best = -1;
+        let bestDist = Infinity;
+        for (let i = 0; i < lineCenters.length; i++) {
+          const d = Math.abs(lineCenters[i] - focus);
+          if (d < bestDist) {
+            bestDist = d;
+            best = i;
           }
+        }
+        if (best !== activeIndex) {
+          if (lineEls[activeIndex]) lineEls[activeIndex].classList.remove("active");
+          if (lineEls[best]) lineEls[best].classList.add("active");
+          activeIndex = best;
         }
       }
 
-      function updateTimer() {
-        const minutes = Math.floor(remainingTime / 60);
-        const seconds = remainingTime % 60;
-        timerDisplay.textContent = `${minutes
-          .toString()
-          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+      // ---- Main loop ----
+      function tick() {
+        const elapsed = elapsedNow();
+        const remaining = totalMs - elapsed;
+        const progress = totalMs > 0 ? clamp(elapsed / totalMs, 0, 1) : 0;
 
-        // Calculate progress (from 0 to 1) and convert to degrees (0° - 360°)
-        const progress = (totalTime - remainingTime) / totalTime;
+        // Time displays
+        const text = fmt(remaining);
+        timerDisplay.textContent = text;
+        prompterTime.textContent = text;
+
+        // Progress visuals
         const angle = progress * 360;
-        // Optionally change color as progress increases
         const hue = 210 * (1 - progress);
         progressRound.style.background = `conic-gradient(hsl(${hue}, 80%, 50%) ${angle}deg, #e0e0e0 ${angle}deg 360deg)`;
+        prompterBar.style.width = progress * 100 + "%";
+        prompterBar.style.background = `hsl(${hue}, 80%, 60%)`;
 
-        if (remainingTime === 0) {
-          clearInterval(countdown);
-          isRunning = false;
-          message.textContent = "Time's up!";
-          document.body.classList.add("blink");
-          vibrateDevice();
-          releaseWakeLock();
-        } else {
-          remainingTime--;
+        renderPrompter(progress);
+
+        if (remaining <= 0) {
+          finish();
+          return;
         }
+        if (isRunning) rafId = requestAnimationFrame(tick);
+      }
+
+      function startLoop() {
+        cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(tick);
+      }
+
+      // ---- Controls ----
+      function startFresh() {
+        const minutes = parseInt(minutesInput.value) || 0;
+        const seconds = parseInt(secondsInput.value) || 0;
+        totalMs = (minutes * 60 + seconds) * 1000;
+        if (totalMs <= 0) {
+          flashHint("Set a time first");
+          return;
+        }
+        saveInputs();
+        promptMode = buildPrompter();
+
+        accumulatedMs = 0;
+        startedAt = performance.now();
+        isRunning = true;
+
+        document.body.classList.remove("blink", "finished");
+        document.body.classList.add("active");
+        document.body.classList.toggle("prompter", promptMode);
+        message.textContent = "";
+        setPauseLabel();
+
+        if (promptMode) {
+          // Wait a frame so the stage is laid out before measuring.
+          requestAnimationFrame(() => {
+            layoutPrompter();
+            startLoop();
+          });
+        } else {
+          startLoop();
+        }
+        requestWakeLock();
+      }
+
+      function resume() {
+        if (isRunning || totalMs <= 0) return;
+        startedAt = performance.now();
+        isRunning = true;
+        document.body.classList.remove("blink", "finished");
+        setPauseLabel();
+        startLoop();
+        requestWakeLock();
+      }
+
+      function pause() {
+        if (!isRunning) return;
+        accumulatedMs = elapsedNow();
+        isRunning = false;
+        cancelAnimationFrame(rafId);
+        setPauseLabel();
+        releaseWakeLock();
+      }
+
+      function togglePause() {
+        if (isRunning) pause();
+        else resume();
+      }
+
+      function setPauseLabel() {
+        const label = isRunning ? "Pause" : "Resume";
+        pauseBtn.textContent = label;
+        pauseBtn2.textContent = label;
+      }
+
+      function reset() {
+        cancelAnimationFrame(rafId);
+        isRunning = false;
+        accumulatedMs = 0;
+        document.body.classList.remove("active", "prompter", "blink", "finished");
+        message.textContent = "";
+        timerDisplay.textContent = "00:00";
+        prompterTime.textContent = "00:00";
+        prompterBar.style.width = "0%";
+        progressRound.style.background =
+          "conic-gradient(var(--accent) 0deg, #e0e0e0 0deg 360deg)";
+        setPauseLabel();
+        releaseWakeLock();
+        if ("vibrate" in navigator) navigator.vibrate(0);
+      }
+
+      function finish() {
+        cancelAnimationFrame(rafId);
+        isRunning = false;
+        accumulatedMs = totalMs;
+        timerDisplay.textContent = "00:00";
+        prompterTime.textContent = "00:00";
+        prompterBar.style.width = "100%";
+        message.textContent = "Time's up!";
+        document.body.classList.add("blink", "finished");
+        setPauseLabel();
+        vibrateDevice();
+        releaseWakeLock();
       }
 
       function vibrateDevice() {
         if ("vibrate" in navigator) {
           navigator.vibrate([
-            500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200, 110,
-            170, 40, 500,
+            500, 110, 500, 110, 450, 110, 200, 110, 170, 40, 450, 110, 200,
+            110, 170, 40, 500,
           ]);
         }
       }
 
-      function pauseTimer() {
-        clearInterval(countdown);
-        isRunning = false;
-        releaseWakeLock();
+      let hintTimer = null;
+      function flashHint(text) {
+        const hint = document.querySelector(".hint");
+        if (!hint) return;
+        const original = hint.textContent;
+        hint.textContent = text;
+        hint.style.color = "#cc0033";
+        clearTimeout(hintTimer);
+        hintTimer = setTimeout(() => {
+          hint.textContent = original;
+          hint.style.color = "";
+        }, 1800);
       }
 
-      function resetTimer() {
-        clearInterval(countdown);
-        isRunning = false;
-        remainingTime = totalTime;
-        updateTimer();
-        message.textContent = "";
-        document.body.classList.remove("blink");
-        progressRound.style.background = `conic-gradient(#0066cc 0deg, #e0e0e0 0deg 360deg)`;
-        if ("vibrate" in navigator) {
-          navigator.vibrate(1000);
-        }
-        releaseWakeLock();
+      // ---- Manual nudge (drag) + tap-to-pause on prompter ----
+      let pointerActive = false;
+      let pointerStartY = 0;
+      let pointerLastY = 0;
+      let pointerMoved = 0;
+
+      viewport.addEventListener("pointerdown", (e) => {
+        pointerActive = true;
+        pointerStartY = pointerLastY = e.clientY;
+        pointerMoved = 0;
+        viewport.setPointerCapture(e.pointerId);
+      });
+
+      viewport.addEventListener("pointermove", (e) => {
+        if (!pointerActive) return;
+        const dy = e.clientY - pointerLastY;
+        pointerLastY = e.clientY;
+        pointerMoved += Math.abs(dy);
+        // Drag up (dy<0) advances; drag down rewinds.
+        manualOffset = clamp(manualOffset - dy, -maxScroll, maxScroll);
+        if (Math.abs(manualOffset) > 2) document.body.classList.add("nudged");
+        renderPrompter(totalMs > 0 ? clamp(elapsedNow() / totalMs, 0, 1) : 0);
+      });
+
+      function endPointer(e) {
+        if (!pointerActive) return;
+        pointerActive = false;
+        try {
+          viewport.releasePointerCapture(e.pointerId);
+        } catch (_) {}
+        // Treat a small movement as a tap -> toggle pause.
+        if (pointerMoved < 10) togglePause();
       }
+      viewport.addEventListener("pointerup", endPointer);
+      viewport.addEventListener("pointercancel", endPointer);
 
-      startBtn.addEventListener("click", startTimer);
-      pauseBtn.addEventListener("click", pauseTimer);
-      resetBtn.addEventListener("click", resetTimer);
+      // ---- Wire up buttons ----
+      startBtn.addEventListener("click", startFresh);
+      pauseBtn.addEventListener("click", togglePause);
+      pauseBtn2.addEventListener("click", togglePause);
+      resetBtn.addEventListener("click", reset);
+      resetBtn2.addEventListener("click", reset);
 
-      // Handle visibility change for wake lock
-      document.addEventListener("visibilitychange", async () => {
-        if (document.visibilityState === "visible" && isRunning) {
-          await requestWakeLock();
-        } else {
-          releaseWakeLock();
-        }
+      syncBtn.addEventListener("click", () => {
+        manualOffset = 0;
+        document.body.classList.remove("nudged");
+        renderPrompter(totalMs > 0 ? clamp(elapsedNow() / totalMs, 0, 1) : 0);
       });
 
-      // Optional: adjust timer if the tab goes inactive
-      let lastTime = Date.now();
-      document.addEventListener("visibilitychange", () => {
-        if (!document.hidden && isRunning) {
-          const now = Date.now();
-          const deltaTime = Math.floor((now - lastTime) / 1000);
-          remainingTime = Math.max(0, remainingTime - deltaTime);
-          updateTimer();
-        }
-        lastTime = Date.now();
-      });
-    </script>
-    <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./service-worker.js')
-        .then((reg) => {
-          console.log('Service Worker registered with scope:', reg.scope);
-        })
-        .catch((err) => {
-          console.error('Service Worker registration failed:', err);
+      function changeFont(delta) {
+        fontScale = clamp(Math.round((fontScale + delta) * 100) / 100, 0.6, 2.2);
+        applyFontScale();
+        requestAnimationFrame(() => {
+          layoutPrompter();
+          renderPrompter(totalMs > 0 ? clamp(elapsedNow() / totalMs, 0, 1) : 0);
         });
-    });
-  }
-</script>
+      }
+      fontInc.addEventListener("click", () => changeFont(0.1));
+      fontDec.addEventListener("click", () => changeFont(-0.1));
+
+      document.getElementById("quickTimes").addEventListener("click", (e) => {
+        const btn = e.target.closest(".chip");
+        if (!btn) return;
+        minutesInput.value = btn.dataset.min;
+        secondsInput.value = 0;
+        saveInputs();
+      });
+
+      [minutesInput, secondsInput, promptInput].forEach((el) =>
+        el.addEventListener("input", saveInputs)
+      );
+
+      // ---- Re-layout on resize / orientation change ----
+      let resizeRaf = null;
+      function onResize() {
+        cancelAnimationFrame(resizeRaf);
+        resizeRaf = requestAnimationFrame(() => {
+          layoutPrompter();
+          renderPrompter(totalMs > 0 ? clamp(elapsedNow() / totalMs, 0, 1) : 0);
+        });
+      }
+      window.addEventListener("resize", onResize);
+      window.addEventListener("orientationchange", onResize);
+
+      // ---- Visibility: timestamp model self-corrects, just re-check/refresh ----
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState !== "visible") return;
+        if (isRunning) {
+          requestWakeLock();
+          if (elapsedNow() >= totalMs) finish();
+          else startLoop();
+        }
+      });
+
+      loadSaved();
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("./service-worker.js")
+            .then((reg) =>
+              console.log("Service Worker registered with scope:", reg.scope)
+            )
+            .catch((err) =>
+              console.error("Service Worker registration failed:", err)
+            );
+        });
+      }
+    </script>
   </body>
 </html>
