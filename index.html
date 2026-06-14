@@ -272,12 +272,6 @@
       // ============================================================
       // Actions
       // ============================================================
-      const incMin = () =>
-        setState({ mins: cl(0, state.mins + 1, 180) }, persist);
-      const decMin = () =>
-        setState({ mins: cl(0, state.mins - 1, 180) }, persist);
-      const incSec = () => setState({ secs: (state.secs + 5) % 60 }, persist);
-      const decSec = () => setState({ secs: (state.secs + 55) % 60 }, persist);
       const applyPreset = (m) => setState({ mins: m, secs: 0 }, persist);
       const toggleCb = (e) => {
         if (e) e.stopPropagation();
@@ -475,6 +469,44 @@
         root.innerHTML = "";
         root.style.cssText = "position:fixed; inset:0; overflow:hidden;";
 
+        let startBtn; // assigned below; referenced by the duration inputs
+        const startLabel = () =>
+          '<span style="font-size:15px;">▶</span> Start · ' +
+          fmt(state.mins * 60 + state.secs);
+
+        // Labeled card with a single centered numeric text input (no steppers).
+        function numField(labelText, key, max) {
+          const card = el(
+            "div",
+            "flex:1; min-width:0; border:1px solid #1e2522; border-radius:20px; padding:16px 14px; display:flex; flex-direction:column; align-items:center; gap:10px;"
+          );
+          card.appendChild(
+            el("div", "font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:#5f6b66; font-weight:600;", { textContent: labelText })
+          );
+          const input = el(
+            "input",
+            "width:100%; min-width:0; background:transparent; border:none; outline:none; text-align:center; font-family:'Geist Mono',monospace; font-size:clamp(34px,11vw,44px); font-weight:600; color:#f3f7f5; padding:0;"
+          );
+          input.type = "text";
+          input.inputMode = "numeric";
+          input.value = String(state[key]);
+          input.oninput = () => {
+            const n = cl(
+              0,
+              parseInt(input.value.replace(/[^0-9]/g, "") || "0", 10),
+              max
+            );
+            state[key] = n;
+            persist();
+            startBtn.innerHTML = startLabel();
+          };
+          input.onchange = () => {
+            input.value = String(state[key]);
+          };
+          card.appendChild(input);
+          return card;
+        }
+
         const scroll = el(
           "div",
           "position:absolute; inset:0; background:#0a0d0e; display:flex; flex-direction:column; align-items:center; overflow-y:auto;"
@@ -497,10 +529,10 @@
         );
         wrap.appendChild(head);
 
-        // duration steppers
+        // duration inputs
         const dur = el("div", "display:flex; align-items:stretch; gap:14px;");
-        dur.appendChild(stepperCard("Minutes", pad2(state.mins), decMin, incMin));
-        dur.appendChild(stepperCard("Seconds", pad2(state.secs), decSec, incSec));
+        dur.appendChild(numField("Minutes", "mins", 180));
+        dur.appendChild(numField("Seconds", "secs", 59));
         wrap.appendChild(dur);
 
         // presets
@@ -587,13 +619,11 @@
         wrap.appendChild(cbRow);
 
         // start button
-        const totalStr = fmt(state.mins * 60 + state.secs);
-        const startBtn = el(
+        startBtn = el(
           "button",
           "margin-top:4px; width:100%; height:64px; border:none; border-radius:20px; background:oklch(0.82 0.16 158); color:#06140d; font-size:19px; font-weight:700; cursor:pointer; box-shadow:0 12px 40px -14px oklch(0.82 0.16 158 / 0.8); display:flex; align-items:center; justify-content:center; gap:10px;"
         );
-        startBtn.innerHTML =
-          '<span style="font-size:15px;">▶</span> Start · ' + totalStr;
+        startBtn.innerHTML = startLabel();
         startBtn.onclick = start;
         wrap.appendChild(startBtn);
 
@@ -606,33 +636,6 @@
         return has
           ? "Teleprompter mode — your lines scroll with a vertical time bar on the right."
           : "Clock mode — one big countdown ring fills the screen.";
-      }
-
-      function stepperCard(label, valueStr, onDec, onInc) {
-        const card = el(
-          "div",
-          "flex:1; border:1px solid #1e2522; border-radius:20px; padding:18px 14px; display:flex; flex-direction:column; align-items:center; gap:12px;"
-        );
-        card.appendChild(
-          el("div", "font-size:11px; letter-spacing:0.22em; text-transform:uppercase; color:#5f6b66; font-weight:600;", { textContent: label })
-        );
-        const row = el("div", "display:flex; align-items:center; gap:12px;");
-        const btnCss =
-          "width:46px; height:46px; border-radius:14px; border:1px solid #232b27; background:#111614; color:#cfe8dc; font-size:24px; font-weight:600; cursor:pointer;";
-        const minus = el("button", btnCss, { innerHTML: "−" });
-        minus.onclick = onDec;
-        const val = el(
-          "div",
-          "font-family:'Geist Mono',monospace; font-size:44px; font-weight:600; min-width:62px; text-align:center; color:#f3f7f5;",
-          { textContent: valueStr }
-        );
-        const plus = el("button", btnCss, { textContent: "+" });
-        plus.onclick = onInc;
-        row.appendChild(minus);
-        row.appendChild(val);
-        row.appendChild(plus);
-        card.appendChild(row);
-        return card;
       }
 
       // ---------- RUN: build skeleton once per layout ----------
