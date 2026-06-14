@@ -1058,7 +1058,12 @@
       // Lifecycle
       // ============================================================
       function onResize() {
-        setState({ vw: window.innerWidth, vh: window.innerHeight });
+        // Track size for the run screen, but never re-render in setup: on
+        // Android the soft keyboard fires a resize when an input is focused,
+        // and rebuilding the setup DOM would steal focus and close the keyboard.
+        state.vw = window.innerWidth;
+        state.vh = window.innerHeight;
+        if (state.screen === "run") render();
       }
       window.addEventListener("resize", onResize);
       window.addEventListener("orientationchange", onResize);
