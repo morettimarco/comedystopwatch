@@ -1,4 +1,4 @@
-const CACHE_NAME = 'comedy-timer-v4';
+const CACHE_NAME = 'comedy-timer-v5';
 const urlsToCache = [
   './',
   './index.html',

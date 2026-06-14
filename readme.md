@@ -12,33 +12,28 @@ During numerous performances, I experienced the shortcomings of generic timers:
 
 ## Features
 
-- **PWA Functionality:**  
-  Enjoy an app-like experience with offline capabilities and easy installation on your device.
-  
-- **Dynamic Countdown Timer:**  
-  Set custom durations using minute and second inputs, or one-tap quick presets (3/5/7/10/15 min).
+A clean, dark, glance-first interface designed for the stage.
 
-- **Scrolling Teleprompter:**  
-  Paste your set or speech (one short line or word per row) and the lines auto-scroll vertically, synced to the timer so you reach the last line exactly when time runs out. The current line is highlighted on a reading guide.
-  - **Stay in sync at your own pace:** swipe the prompter up/down to nudge ahead or back if you drift; tap **Re-sync** to snap back to the timer.
-  - **Tap to pause:** tap anywhere on the prompter to pause/resume.
-  - **Readable from anywhere:** adjust text size with the A− / A+ buttons.
-  - Leave the prompt empty to use the classic full-round timer instead.
+- **Set your time fast:**  
+  Minute/second steppers plus one-tap presets (3/5/7/10/15 min).
 
-- **Responsive Layout:**  
-  Works in portrait and landscape on phones, tablets, and laptops.
+- **Two modes, picked automatically:**  
+  - **Clock mode** (no script) — one big countdown **ring** fills the screen.
+  - **Teleprompter mode** (paste a script, one line per row) — your lines scroll, the current line lit, with a thick vertical time bar on the right.
 
-- **Remembers Your Setup:**  
-  Your last duration, prompt text, and text size are saved locally for next time.
+- **Color = remaining time, at a glance:**  
+  The ring/bar sweep **continuously** from green → amber → red as the clock runs down, with a stepped status chip and shape cue: **● ON TRACK → ▲ LIGHT (25% left) → ■ WRAP UP (8% left) → ◆ OVER**. When time's up the whole screen flashes (0.5s on/off) and counts up the overtime.
 
-- **Full-Round Visual Progress Indicator:**  
-  A conic-gradient progress bar offers an at-a-glance understanding of the remaining time.
+- **Colorblind-safe mode:**  
+  A setup toggle swaps to a blue → yellow → red palette plus redundant shape and label cues that read in grayscale.
 
-- **Haptic Feedback:**  
-  Uses device vibration for a subtle alert when time’s up (on supported devices).
+- **Built for performing:**  
+  Tap-to-mark **laugh tally**, one-tap **fullscreen**, tap to hide/show controls, swipe to nudge the prompter, A−/A+ text size, and **Re-sync**.
 
-- **Screen Wake Lock:**  
-  Prevents the device from going to sleep during the countdown.
+- **Responsive:**  
+  Portrait and landscape on phones, tablets, and laptops.
+
+- **Remembers your setup**, **haptic feedback** on time's-up, **screen wake-lock**, and full **PWA** offline/install support.
 
 ## Installation Instructions
 
